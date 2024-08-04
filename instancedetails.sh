@@ -26,8 +26,13 @@ describe_instances() {
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
-  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime\tPublicDnsName" | column -t
-  echo -e "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | column -t | awk 'BEGIN { FS=OFS="\t" } {print; print "----\t----\t----\t----\t----\t----\t----"}'
+  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
+  echo -e "| InstanceId            | InstanceName          | State           | PublicIpAddress  | PrivateIpAddress | LaunchTime              | PublicDnsName                   |"
+  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
+  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | \
+  awk 'BEGIN {FS="\t"; OFS=" | "} {print "| " $1, $2, $3, $4, $5, $6, $7 " |"}' | \
+  sed 's/^/+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+/'
+  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
 }
 
 # Function to describe instances in an ASG
@@ -47,8 +52,13 @@ describe_asg_instances() {
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
-  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime\tPublicDnsName" | column -t
-  echo -e "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | column -t | awk 'BEGIN { FS=OFS="\t" } {print; print "----\t----\t----\t----\t----\t----\t----"}'
+  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
+  echo -e "| InstanceId            | InstanceName          | State           | PublicIpAddress  | PrivateIpAddress | LaunchTime              | PublicDnsName                   |"
+  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
+  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | \
+  awk 'BEGIN {FS="\t"; OFS=" | "} {print "| " $1, $2, $3, $4, $5, $6, $7 " |"}' | \
+  sed 's/^/+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+/'
+  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
 }
 
 if [[ "$Environment" == "Dev" || "$Environment" == "UAT" ]]; then
