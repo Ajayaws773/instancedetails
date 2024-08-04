@@ -64,10 +64,13 @@ if [[ "$Environment" == "Dev" || "$Environment" == "UAT" ]]; then
       exit 1
       ;;
   esac
-elif [[ "$Environment" == "ASG" ]]; then
+elif [[ "$Environment" == "ASG-UAT-B2B" ]]; then
   asg="asg"  # Replace with the actual Auto Scaling Group name
   describe_asg_instances "$asg"
-elif [[ "$Environment" == "ASG2" ]]; then
+elif [[ "$Environment" == "ASG-UAT-A2A" ]]; then
+  asg="asg2"  # Replace with the actual Auto Scaling Group name
+  describe_asg_instances "$asg"
+elif [[ "$Environment" == "ASG-UAT-UI" ]]; then
   asg="asg2"  # Replace with the actual Auto Scaling Group name
   describe_asg_instances "$asg"
 else
