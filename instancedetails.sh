@@ -10,8 +10,8 @@ echo "########## The server details are ........################ "
 echo "The Environment to Deploy is : $Environment"
 
 ########## Declaring the server names by the environment ##########
-Devserver=("i-0d6040c16f1f5643d" "i-0d6040c16f1f5643d")
-UATserver=("i-0d6040c16f1f5643d")
+Devserver=("i-0d6040c16f1f5643d" "i-011b26fedbeffbf1f")
+UATserver=("i-047ed6ecbed5e4add" "i-02695a0eca8be2b56")
 ASGserver=("i-0d6040c16f1f5643d")
 Prodserver=("i-0d6040c16f1f5643d")
 
