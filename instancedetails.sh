@@ -26,6 +26,7 @@ describe_instances() {
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
+  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime"
   echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime] | @tsv' | column -t
 }
 
@@ -46,6 +47,7 @@ describe_asg_instances() {
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
+  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime"
   echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime] | @tsv' | column -t
 }
 
