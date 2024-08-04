@@ -22,12 +22,12 @@ describe_instances() {
   for INSTANCE_ID in "${INSTANCE_ID_ARRAY[@]}"
   do
     echo "Describing instance: $INSTANCE_ID"
-    INSTANCE_DETAIL=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query 'Reservations[*].Instances[*].{InstanceId:InstanceId,InstanceName:Tags[?Key==`Name`].Value | [0],State:State.Name,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress,LaunchTime:LaunchTime}' --output json)
+    INSTANCE_DETAIL=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query 'Reservations[*].Instances[*].{InstanceId:InstanceId,InstanceName:Tags[?Key==`Name`].Value | [0],State:State.Name,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress,LaunchTime:LaunchTime,PublicDnsName:PublicDnsName}' --output json)
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
-  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime"
-  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime] | @tsv' | column -t
+  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime\tPublicDnsName"
+  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | column -t
 }
 
 # Function to describe instances in an ASG
@@ -43,12 +43,12 @@ describe_asg_instances() {
   for INSTANCE_ID in "${INSTANCE_ID_ARRAY[@]}"
   do
     echo "Describing instance: $INSTANCE_ID"
-    INSTANCE_DETAIL=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query 'Reservations[*].Instances[*].{InstanceId:InstanceId,InstanceName:Tags[?Key==`Name`].Value | [0],State:State.Name,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress,LaunchTime:LaunchTime}' --output json)
+    INSTANCE_DETAIL=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query 'Reservations[*].Instances[*].{InstanceId:InstanceId,InstanceName:Tags[?Key==`Name`].Value | [0],State:State.Name,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress,LaunchTime:LaunchTime,PublicDnsName:PublicDnsName}' --output json)
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
-  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime"
-  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime] | @tsv' | column -t
+  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime\tPublicDnsName"
+  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | column -t
 }
 
 if [[ "$Environment" == "Dev" || "$Environment" == "UAT" ]]; then
