@@ -26,8 +26,8 @@ describe_instances() {
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
-  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime\tPublicDnsName"
-  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | column -t
+  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime\tPublicDnsName" | column -t
+  echo -e "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | column -t | awk 'BEGIN { FS=OFS="\t" } {print; print "----\t----\t----\t----\t----\t----\t----"}'
 }
 
 # Function to describe instances in an ASG
@@ -47,8 +47,8 @@ describe_asg_instances() {
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
-  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime\tPublicDnsName"
-  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | column -t
+  echo -e "InstanceId\tInstanceName\tState\tPublicIpAddress\tPrivateIpAddress\tLaunchTime\tPublicDnsName" | column -t
+  echo -e "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | column -t | awk 'BEGIN { FS=OFS="\t" } {print; print "----\t----\t----\t----\t----\t----\t----"}'
 }
 
 if [[ "$Environment" == "Dev" || "$Environment" == "UAT" ]]; then
