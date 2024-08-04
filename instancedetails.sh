@@ -26,13 +26,31 @@ describe_instances() {
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
-  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
-  echo -e "| InstanceId            | InstanceName          | State           | PublicIpAddress  | PrivateIpAddress | LaunchTime              | PublicDnsName                   |"
-  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
-  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | \
-  awk 'BEGIN {FS="\t"; OFS=" | "} {print "| " $1, $2, $3, $4, $5, $6, $7 " |"}' | \
-  sed 's/^/+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+/'
-  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
+
+  # Determine column widths
+  col1_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .InstanceId' | awk '{print length($0)}' | sort -n | tail -1)
+  col2_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .InstanceName // ""' | awk '{print length($0)}' | sort -n | tail -1)
+  col3_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .State // ""' | awk '{print length($0)}' | sort -n | tail -1)
+  col4_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .PublicIpAddress // ""' | awk '{print length($0)}' | sort -n | tail -1)
+  col5_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .PrivateIpAddress // ""' | awk '{print length($0)}' | sort -n | tail -1)
+  col6_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .LaunchTime // ""' | awk '{print length($0)}' | sort -n | tail -1)
+  col7_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .PublicDnsName // ""' | awk '{print length($0)}' | sort -n | tail -1)
+
+  # Print the header
+  printf "+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+\n" $(printf '%*s' $((col1_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col2_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col3_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col4_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col5_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col6_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col7_width + 2)) '' | tr ' ' '-')
+  printf "| %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s |\n" $col1_width "InstanceId" $col2_width "InstanceName" $col3_width "State" $col4_width "PublicIpAddress" $col5_width "PrivateIpAddress" $col6_width "LaunchTime" $col7_width "PublicDnsName"
+  printf "+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+\n" $(printf '%*s' $((col1_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col2_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col3_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col4_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col5_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col6_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col7_width + 2)) '' | tr ' ' '-')
+
+  # Print the data rows
+  echo "$INSTANCE_DETAILS_JSON" | jq -r ".[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv" | \
+  awk -v col1_width="$col1_width" -v col2_width="$col2_width" -v col3_width="$col3_width" -v col4_width="$col4_width" -v col5_width="$col5_width" -v col6_width="$col6_width" -v col7_width="$col7_width" '
+  BEGIN { FS = "\t"; OFS = " | " }
+  {
+    printf "| %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s |\n", col1_width, $1, col2_width, $2, col3_width, $3, col4_width, $4, col5_width, $5, col6_width, $6, col7_width, $7
+  }'
+  
+  # Print the footer
+  printf "+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+\n" $(printf '%*s' $((col1_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col2_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col3_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col4_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col5_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col6_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col7_width + 2)) '' | tr ' ' '-')
 }
 
 # Function to describe instances in an ASG
@@ -52,13 +70,31 @@ describe_asg_instances() {
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
-  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
-  echo -e "| InstanceId            | InstanceName          | State           | PublicIpAddress  | PrivateIpAddress | LaunchTime              | PublicDnsName                   |"
-  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
-  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv' | \
-  awk 'BEGIN {FS="\t"; OFS=" | "} {print "| " $1, $2, $3, $4, $5, $6, $7 " |"}' | \
-  sed 's/^/+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+/'
-  echo -e "+-----------------------+-----------------------+-----------------+------------------+------------------+-------------------------+---------------------------------+"
+
+  # Determine column widths
+  col1_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .InstanceId' | awk '{print length($0)}' | sort -n | tail -1)
+  col2_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .InstanceName // ""' | awk '{print length($0)}' | sort -n | tail -1)
+  col3_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .State // ""' | awk '{print length($0)}' | sort -n | tail -1)
+  col4_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .PublicIpAddress // ""' | awk '{print length($0)}' | sort -n | tail -1)
+  col5_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .PrivateIpAddress // ""' | awk '{print length($0)}' | sort -n | tail -1)
+  col6_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .LaunchTime // ""' | awk '{print length($0)}' | sort -n | tail -1)
+  col7_width=$(echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | .PublicDnsName // ""' | awk '{print length($0)}' | sort -n | tail -1)
+
+  # Print the header
+  printf "+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+\n" $(printf '%*s' $((col1_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col2_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col3_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col4_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col5_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col6_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col7_width + 2)) '' | tr ' ' '-')
+  printf "| %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s |\n" $col1_width "InstanceId" $col2_width "InstanceName" $col3_width "State" $col4_width "PublicIpAddress" $col5_width "PrivateIpAddress" $col6_width "LaunchTime" $col7_width "PublicDnsName"
+  printf "+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+\n" $(printf '%*s' $((col1_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col2_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col3_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col4_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col5_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col6_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col7_width + 2)) '' | tr ' ' '-')
+
+  # Print the data rows
+  echo "$INSTANCE_DETAILS_JSON" | jq -r ".[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime, .PublicDnsName] | @tsv" | \
+  awk -v col1_width="$col1_width" -v col2_width="$col2_width" -v col3_width="$col3_width" -v col4_width="$col4_width" -v col5_width="$col5_width" -v col6_width="$col6_width" -v col7_width="$col7_width" '
+  BEGIN { FS = "\t"; OFS = " | " }
+  {
+    printf "| %-*s | %-*s | %-*s | %-*s | %-*s | %-*s | %-*s |\n", col1_width, $1, col2_width, $2, col3_width, $3, col4_width, $4, col5_width, $5, col6_width, $6, col7_width, $7
+  }'
+  
+  # Print the footer
+  printf "+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+-%s-+\n" $(printf '%*s' $((col1_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col2_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col3_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col4_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col5_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col6_width + 2)) '' | tr ' ' '-') $(printf '%*s' $((col7_width + 2)) '' | tr ' ' '-')
 }
 
 if [[ "$Environment" == "Dev" || "$Environment" == "UAT" ]]; then
