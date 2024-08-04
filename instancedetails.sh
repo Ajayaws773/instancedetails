@@ -13,9 +13,7 @@ echo "The Environment to Deploy is : $Environment"
 ########## Declaring the server names by the environment ##########
 Devserver=("i-0d6040c16f1f5643d" "i-0d6040c16f1f5643d")
 UATserver=("i-0d6040c16f1f5643d")
-ASG-UAT-B2B=("i-0d6040c16f1f5643d")
-ASG-UAT-A2A=("Prod1" "Prod2" "Prod3")
-ASG-UAT-UI=()
+ASG=("i-0d6040c16f1f5643d")
 
 if [[ $Environment == "Dev" ]]
 then
@@ -47,7 +45,7 @@ for INSTANCE_ID in "${INSTANCE_ID_ARRAY[@]}"
 INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
 echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress] | @tsv' | column -t
                     '''
-elif [[ $Environment == "UAT" ]]
+elif [[ $Environment == "ASG" ]]
 then
   echo "The Target environment is : Dev"
   INSTANCE_IDS=$(echo $Devserver | tr '\\t' ' ')
