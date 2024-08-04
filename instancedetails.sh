@@ -69,10 +69,10 @@ elif [[ "$Environment" == "ASG-UAT-B2B" ]]; then
   describe_asg_instances "$asg"
 elif [[ "$Environment" == "ASG-UAT-A2A" ]]; then
   asg="asg2"  # Replace with the actual Auto Scaling Group name
-  describe_asg_instances "$asg2"
+  describe_asg_instances "$asg"
 elif [[ "$Environment" == "ASG-UAT-UI" ]]; then
   asg="asg2"  # Replace with the actual Auto Scaling Group name
-  describe_asg_instances "$asg2"
+  describe_asg_instances "$asg"
 else
   echo "Invalid environment specified."
   exit 1
