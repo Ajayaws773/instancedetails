@@ -13,7 +13,7 @@ echo "The Environment to Deploy is : $Environment"
 ########## Declaring the server names by the environment ##########
 Devserver=("i-0d6040c16f1f5643d" "i-0d6040c16f1f5643d")
 UATserver=("i-0d6040c16f1f5643d")
-ASG-UAT-B2B=("asg")
+ASG-UAT-B2B=("i-0d6040c16f1f5643d")
 ASG-UAT-A2A=("Prod1" "Prod2" "Prod3")
 ASG-UAT-UI=()
 
