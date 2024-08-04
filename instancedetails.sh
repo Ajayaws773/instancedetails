@@ -29,23 +29,9 @@ describe_instances() {
   echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress] | @tsv' | column -t
 }
 
-if [[ "$Environment" == "Dev" || "$Environment" == "UAT" ]]; then
-  case $Environment in
-    "Dev")
-      echo "The Target environment is: Dev"
-      describe_instances "${Devserver[@]}"
-      ;;
-    "UAT")
-      echo "The Target environment is: UAT"
-      describe_instances "${UATserver[@]}"
-      ;;
-    *)
-      echo "Invalid environment specified for Dev/UAT."
-      exit 1
-      ;;
-  esac
-elif [[ "$Environment" == "ASG" ]]; then
-  asg="asg"  # Replace with the actual Auto Scaling Group name
+# Function to describe instances in an ASG
+describe_asg_instances() {
+  local asg="$1"
   INSTANCE_IDS=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name "$asg" --query 'AutoScalingGroups[*].Instances[*].InstanceId' --output text)
   echo "Raw instance IDs: $INSTANCE_IDS"
   INSTANCE_IDS=$(echo $INSTANCE_IDS | tr '\t' ' ')
@@ -61,6 +47,29 @@ elif [[ "$Environment" == "ASG" ]]; then
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
   echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress] | @tsv' | column -t
+}
+
+if [[ "$Environment" == "Dev" || "$Environment" == "UAT" ]]; then
+  case $Environment in
+    "Dev")
+      echo "The Target environment is: Dev"
+      describe_instances "${Devserver[@]}"
+      ;;
+    "UAT")
+      echo "The Target environment is: UAT"
+      describe_instances "${UATserver[@]}"
+      ;;
+    *)
+      echo "Invalid environment specified for Dev/UAT."
+      exit 1
+      ;;
+  esac
+elif [[ "$Environment" == "ASG-UAT-B2B" ]]; then
+  asg="asg"  # Replace with the actual Auto Scaling Group name
+  describe_asg_instances "$asg"
+elif [[ "$Environment" == "ASG-UAT-A2A" ]]; then
+  asg="asg2"  # Replace with the actual Auto Scaling Group name
+  describe_asg_instances "$asg"
 else
   echo "Invalid environment specified."
   exit 1
