@@ -22,11 +22,11 @@ describe_instances() {
   for INSTANCE_ID in "${INSTANCE_ID_ARRAY[@]}"
   do
     echo "Describing instance: $INSTANCE_ID"
-    INSTANCE_DETAIL=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query 'Reservations[*].Instances[*].{InstanceId:InstanceId,InstanceName:Tags[?Key==`Name`].Value | [0],State:State.Name,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress}' --output json)
+    INSTANCE_DETAIL=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query 'Reservations[*].Instances[*].{InstanceId:InstanceId,InstanceName:Tags[?Key==`Name`].Value | [0],State:State.Name,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress,LaunchTime:LaunchTime}' --output json)
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
-  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress] | @tsv' | column -t
+  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime] | @tsv' | column -t
 }
 
 # Function to describe instances in an ASG
@@ -42,11 +42,11 @@ describe_asg_instances() {
   for INSTANCE_ID in "${INSTANCE_ID_ARRAY[@]}"
   do
     echo "Describing instance: $INSTANCE_ID"
-    INSTANCE_DETAIL=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query 'Reservations[*].Instances[*].{InstanceId:InstanceId,InstanceName:Tags[?Key==`Name`].Value | [0],State:State.Name,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress}' --output json)
+    INSTANCE_DETAIL=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --query 'Reservations[*].Instances[*].{InstanceId:InstanceId,InstanceName:Tags[?Key==`Name`].Value | [0],State:State.Name,PublicIpAddress:PublicIpAddress,PrivateIpAddress:PrivateIpAddress,LaunchTime:LaunchTime}' --output json)
     INSTANCE_DETAILS+=("$INSTANCE_DETAIL")
   done
   INSTANCE_DETAILS_JSON=$(jq -s 'map(.[][])' <<< "${INSTANCE_DETAILS[@]}")
-  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress] | @tsv' | column -t
+  echo "$INSTANCE_DETAILS_JSON" | jq -r '.[] | [.InstanceId, .InstanceName, .State, .PublicIpAddress, .PrivateIpAddress, .LaunchTime] | @tsv' | column -t
 }
 
 if [[ "$Environment" == "Dev" || "$Environment" == "UAT" ]]; then
@@ -64,11 +64,11 @@ if [[ "$Environment" == "Dev" || "$Environment" == "UAT" ]]; then
       exit 1
       ;;
   esac
-elif [[ "$Environment" == "ASG-UAT-B2B" ]]; then
+elif [[ "$Environment" == "ASG" ]]; then
   asg="asg"  # Replace with the actual Auto Scaling Group name
   describe_asg_instances "$asg"
-elif [[ "$Environment" == "ASG-UAT-A2A" ]]; then
-  asg="asg-test"  # Replace with the actual Auto Scaling Group name
+elif [[ "$Environment" == "ASG2" ]]; then
+  asg="asg2"  # Replace with the actual Auto Scaling Group name
   describe_asg_instances "$asg"
 else
   echo "Invalid environment specified."
